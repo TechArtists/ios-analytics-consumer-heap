@@ -1,0 +1,24 @@
+{
+  "originHash" : "6e3ae941950eb02644ccd86defb76076cd380cc4cd9d36dbda9ac08d64bec672",
+  "pins" : [
+    {
+      "identity" : "heap-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/heap/heap-ios-sdk.git",
+      "state" : {
+        "revision" : "89dd6635d77a059c78beebc97d6bc9b1d951f24d",
+        "version" : "8.2.2"
+      }
+    },
+    {
+      "identity" : "taanalytics",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:TechArtists/TAAnalytics.git",
+      "state" : {
+        "revision" : "a344af269d4b111fabd4d0de8914965458ee4df4",
+        "version" : "1.0.2"
+      }
+    }
+  ],
+  "version" : 3
+}

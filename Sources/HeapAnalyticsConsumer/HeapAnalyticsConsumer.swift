@@ -1,5 +1,4 @@
-/*
-MIT License
+/* MIT License
 
 Copyright (c) 2025 Tech Artists Agency
 
@@ -23,25 +22,30 @@ SOFTWARE.
 */
 
 import TAAnalytics
-
 import Heap
 
 /// Sends messages to Heap Analytics about analytics events & user properties.
-public class HeapAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWriteOnlyUserID {
+public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithReadWriteUserID {
 
-    public typealias T = HeapAnalyticsConsumer
+    public typealias T = Heap.Type
 
+    private let sdkKey: String
     private let enabledInstallTypes: [TAAnalyticsConfig.InstallType]
-    private let appId: String
+    private let isRedacted: Bool
 
     // MARK: AnalyticsConsumer
 
     /// - Parameters:
     ///   - isRedacted: If parameter & user property values should be redacted.
     ///   - enabledInstallTypes: Install types for which the consumer is enabled.
-    init(appId: String, enabledInstallTypes: [TAAnalyticsConfig.InstallType]) {
-        self.appId = appId
+    public init(
+        enabledInstallTypes: [TAAnalyticsConfig.InstallType] = TAAnalyticsConfig.InstallType.allCases,
+        isRedacted: Bool = true,
+        sdkKey: String
+    ) {
+        self.sdkKey = sdkKey
         self.enabledInstallTypes = enabledInstallTypes
+        self.isRedacted = isRedacted
     }
 
     public func startFor(
@@ -52,12 +56,11 @@ public class HeapAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWrit
         if !self.enabledInstallTypes.contains(installType) {
             throw InstallTypeError.invalidInstallType
         }
-        // Initialize Heap. Usually, this is done globally once in the app.
-        Heap.initialize(appId)
+        
+        Heap.initialize(sdkKey)
     }
 
-    public func track(trimmedEvent: TrimmedEvent, params: [String: AnalyticsBaseParameterValue]?) {
-        let event = trimmedEvent.event
+    public func track(trimmedEvent: EventAnalyticsModelTrimmed, params: [String: any AnalyticsBaseParameterValue]?) {
         
         var eventProperties = [String: String]()
         if let params = params {
@@ -65,40 +68,40 @@ public class HeapAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWrit
                 eventProperties[key] = value.description
             }
         }
-        Heap.track( event.rawValue, withProperties: eventProperties)
+        Heap.track(trimmedEvent.rawValue, withProperties: eventProperties)
     }
 
-    public func set(trimmedUserProperty: TrimmedUserProperty, to: String?) {
-        let userPropertyKey = trimmedUserProperty.userProperty.rawValue
+    public func set(trimmedUserProperty: UserPropertyAnalyticsModelTrimmed, to: String?) {
+        let userPropertyKey = trimmedUserProperty.rawValue
 
         if let value = to {
-            // Set user properties in Heap
             Heap.addUserProperties([userPropertyKey: value])
         }
     }
 
-    public func trim(event: AnalyticsEvent) -> TrimmedEvent {
-        // Heap doesn't have strict event name limits, but you can enforce one.
-        let trimmedEventName = event.rawValue.ob_trim(type: "event", toLength: 40)
-        return TrimmedEvent(trimmedEventName)
+    public func trim(event: EventAnalyticsModel) -> EventAnalyticsModelTrimmed {
+        let trimmedEventName = event.rawValue.ta_trim(toLength: 40, debugType: "event")
+        return EventAnalyticsModelTrimmed(trimmedEventName)
     }
 
-    public func trim(userProperty: AnalyticsUserProperty) -> TrimmedUserProperty {
-        // Heap doesn't have strict user property key limits, but you can enforce one.
-        let trimmedUserPropertyKey = userProperty.rawValue.ob_trim(type: "user property", toLength: 24)
-        return TrimmedUserProperty(trimmedUserPropertyKey)
+    public func trim(userProperty: UserPropertyAnalyticsModel) -> UserPropertyAnalyticsModelTrimmed {
+        let trimmedUserPropertyKey = userProperty.rawValue.ta_trim(toLength: 24, debugType: "user property")
+        return UserPropertyAnalyticsModelTrimmed(trimmedUserPropertyKey)
     }
 
-    public var wrappedValue: Self {
-        return self
+    public var wrappedValue: Heap.Type {
+        return Heap.self
     }
 
-    // MARK: AnalyticsConsumerWithWriteOnlyUserID
+    // MARK: AnalyticsConsumerWithReadWriteUserID
 
     public func set(userID: String?) {
         if let userID = userID {
-            // Set the user ID in Heap
             Heap.identify(userID)
         }
+    }
+
+    public func getUserID() -> String? {
+        return nil
     }
 }

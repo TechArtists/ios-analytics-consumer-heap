@@ -25,7 +25,7 @@ import TAAnalytics
 import Heap
 
 /// Sends messages to Heap Analytics about analytics events & user properties.
-public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithReadWriteUserID {
+public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWriteOnlyUserID {
 
     public typealias T = Heap.Type
 
@@ -93,15 +93,11 @@ public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithRe
         return Heap.self
     }
 
-    // MARK: AnalyticsConsumerWithReadWriteUserID
+    // MARK: AnalyticsConsumerWithWriteOnlyUserID
 
     public func set(userID: String?) {
         if let userID = userID {
             Heap.identify(userID)
         }
-    }
-
-    public func getUserID() -> String? {
-        return nil
     }
 }

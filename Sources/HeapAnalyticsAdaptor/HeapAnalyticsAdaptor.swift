@@ -25,7 +25,7 @@ import TAAnalytics
 import Heap
 
 /// Sends messages to Heap Analytics about analytics events & user properties.
-public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWriteOnlyUserID {
+public class HeapIOAnalyticsAdaptor: AnalyticsAdaptor, AnalyticsAdaptorWithWriteOnlyUserID {
 
     public typealias T = Heap.Type
 
@@ -33,7 +33,7 @@ public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWr
     private let enabledInstallTypes: [TAAnalyticsConfig.InstallType]
     private let isRedacted: Bool
 
-    // MARK: AnalyticsConsumer
+    // MARK: AnalyticsAdaptor
 
     /// - Parameters:
     ///   - isRedacted: If parameter & user property values should be redacted.
@@ -93,7 +93,7 @@ public class HeapIOAnalyticsConsumer: AnalyticsConsumer, AnalyticsConsumerWithWr
         return Heap.self
     }
 
-    // MARK: AnalyticsConsumerWithWriteOnlyUserID
+    // MARK: AnalyticsAdaptorWithWriteOnlyUserID
 
     public func set(userID: String?) {
         if let userID = userID {
